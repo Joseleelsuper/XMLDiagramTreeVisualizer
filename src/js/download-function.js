@@ -35,11 +35,11 @@ function downloadDiagram() {
     exportSvg.setAttribute("height", exportBounds.height);
     exportSvg.setAttribute("viewBox", `${exportBounds.minX} ${exportBounds.minY} ${exportBounds.width} ${exportBounds.height}`);
     
-    // Añadir el fondo al SVG de exportación
+    // Añadir el fondo transparente al SVG de exportación
     const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     background.setAttribute("width", "100%");
     background.setAttribute("height", "100%");
-    background.setAttribute("fill", "#0f172a");
+    background.setAttribute("fill", "rgba(0,0,0,0)");
     exportSvg.appendChild(background);
     
     // Clonar los nodos y conexiones relevantes
@@ -105,15 +105,14 @@ function downloadDiagram() {
       const ctx = canvas.getContext("2d");
       ctx.scale(scale, scale);
       
-      // Dibujar un gradiente como fondo
-      const gradient = ctx.createLinearGradient(0, 0, exportBounds.width, exportBounds.height);
-      gradient.addColorStop(0, "#0f172a");
-      gradient.addColorStop(1, "#1e293b");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, exportBounds.width, exportBounds.height);
+      // Dibujar fondo transparente
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.globalAlpha = 1.0; // Asegura opacidad total para el dibujo
       
       // Dibujar el SVG sobre el fondo
       ctx.drawImage(img, 0, 0);
+      ctx.restore();
       
       // Descargar la imagen como PNG
       const imgUrl = canvas.toDataURL("image/png");
