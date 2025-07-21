@@ -322,7 +322,7 @@ class XMLTreeVisualizer {
     console.log(`XML parsing completed in ${parseTime.toFixed(2)}ms`);
 
     // Auto-collapse tree to show only first and second level
-    this.autoCollapseDeepNodes(1);
+    this.autoCollapseDeepNodes(5);
     // Render the tree
     this.renderTree();
 
