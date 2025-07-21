@@ -1314,44 +1314,23 @@ class XMLTreeVisualizer {
   }
 
   zoomIn() {
-    // Increase zoom effect by 5x for button clicks
+    // Aumentar el efecto de zoom (botones)
     const baseStep = this.currentZoom >= 2 ? 0.2 : 0.1;
     const adaptiveStep = baseStep * 5;
-    
-    // Guardar la posición actual antes de hacer zoom
-    const oldZoom = this.currentZoom;
-    // Usar multiplicación directa para un zoom más natural
+
     const newZoom = this.currentZoom * (1 + adaptiveStep);
-    
-    // Ajustar posición para mantener el punto de vista
-    this.adjustZoomPosition(oldZoom, newZoom);
-    
-    // Actualizar el zoom
     this.currentZoom = newZoom;
     this.updateZoom();
-    
-    // Zoom in event has no additional actions
   }
 
   zoomOut() {
-    // Increase zoom effect by 5x for button clicks
+    // Disminuir el zoom (botones)
     const baseStep = this.currentZoom <= 0.5 ? 0.05 : 0.1;
     const adaptiveStep = baseStep * 5;
-    
-    // Guardar la posición actual antes de hacer zoom
-    const oldZoom = this.currentZoom;
-    // Usar multiplicación directa para un zoom más natural
+
     const newZoom = Math.max(0.1, this.currentZoom * (1 - adaptiveStep));
-    
-    // Ajustar posición para mantener el punto de vista
-    this.adjustZoomPosition(oldZoom, newZoom);
-    
-    // Actualizar el zoom
     this.currentZoom = newZoom;
     this.updateZoom();
-    
-    // Check if we should reduce detail when zooming out
-    // No additional actions when zooming out
   }
   
   // Ajusta la posición para mantener el centro de vista durante el zoom con botones
