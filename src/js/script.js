@@ -782,102 +782,61 @@ class XMLTreeVisualizer {
   }
 
   positionNodes() {
-    // Enfoque diferente: posicionar primero la raíz y luego sus hijos recursivamente
-    // Esto garantiza que cada hijo esté centrado debajo de su padre
-    
-    // Primero, posicionamos los nodos raíz centrados
-    const rootNodes = this.treeData;
-    if (!rootNodes || rootNodes.length === 0) return;
-    
-    // Inicializar una estructura para almacenar información del padre
-    const parentInfo = new Map();
-    
-    // Centrar los nodos raíz
-    const rootWidth = rootNodes.length * (this.nodeWidth + this.nodeSpacing) - this.nodeSpacing;
-    let startX = -rootWidth / 2;
-    
-    // Posicionar raíces y preparar información para sus hijos
-    rootNodes.forEach((node) => {
-      node.x = startX;
-      node.y = 0; // Nivel raíz en y=0
-      startX += this.nodeWidth + this.nodeSpacing;
-      
-      // Almacenar información del padre para los hijos
-      if (node.children && node.children.length > 0) {
-        parentInfo.set(node.id, { x: node.x, width: this.nodeWidth });
+    const roots = this.treeData;
+    if (!roots || roots.length === 0) return;
+
+    // ----- Paso 1: calcular el ancho de cada subárbol -----
+    const calculateWidth = (node) => {
+      if (!node.children || node.children.length === 0 || this.collapsedNodes.has(node.id)) {
+        node.subtreeWidth = this.nodeWidth;
+        return node.subtreeWidth;
       }
-    });
-    
-    // Función recursiva para posicionar nodos hijos en función de su padre
-    const positionChildren = (nodes, depth) => {
-      if (nodes.length === 0) return;
-      
-      // Agrupar nodos por padre para procesarlos juntos
-      const nodesByParent = {};
-      
-      nodes.forEach(node => {
-        if (!node.parentId) return; // Saltar si no tiene padre (no debería ocurrir)
-        
-        if (!nodesByParent[node.parentId]) {
-          nodesByParent[node.parentId] = [];
+
+      let total = 0;
+      for (let i = 0; i < node.children.length; i++) {
+        total += calculateWidth(node.children[i]);
+        if (i < node.children.length - 1) {
+          total += this.nodeSpacing;
         }
-        nodesByParent[node.parentId].push(node);
-      });
-      
-      // Para cada grupo de nodos con el mismo padre
-      Object.keys(nodesByParent).forEach(parentId => {
-        const childNodes = nodesByParent[parentId];
-        const parent = parentInfo.get(parentId);
-        
-        if (!parent) return; // Saltar si no tenemos información del padre
-        
-        // Calcular ancho total de este grupo de hijos
-        const childrenWidth = childNodes.length * (this.nodeWidth + this.nodeSpacing) - this.nodeSpacing;
-        
-        // Posición inicial: centrado debajo del padre
-        let childX = parent.x + (parent.width / 2) - (childrenWidth / 2);
-        
-        // Posicionar cada hijo
-        childNodes.forEach(child => {
-          child.x = childX;
-          child.y = depth * this.levelHeight;
-          childX += this.nodeWidth + this.nodeSpacing;
-          
-          // Guardar información para los hijos de este nodo
-          if (child.children && child.children.length > 0 && !this.collapsedNodes.has(child.id)) {
-            parentInfo.set(child.id, { x: child.x, width: this.nodeWidth });
-          }
-        });
-        
-        // Recursivamente posicionar los hijos de estos nodos
-        const nextLevelNodes = [];
-        childNodes.forEach(child => {
-          if (child.children && child.children.length > 0 && !this.collapsedNodes.has(child.id)) {
-            nextLevelNodes.push(...child.children);
-          }
-        });
-        
-        if (nextLevelNodes.length > 0) {
-          positionChildren(nextLevelNodes, depth + 1);
-        }
-      });
+      }
+
+      node.subtreeWidth = Math.max(this.nodeWidth, total);
+      return node.subtreeWidth;
     };
-    
-    // Procesar el árbol nivel por nivel
-    // Primero recopilamos todos los nodos hijos visibles del primer nivel
-    const firstLevelChildren = [];
-    rootNodes.forEach(node => {
-      if (node.children && node.children.length > 0 && !this.collapsedNodes.has(node.id)) {
-        // Asignar el parentId para cada hijo (necesario para el algoritmo)
-        node.children.forEach(child => {
-          child.parentId = node.id;
-        });
-        firstLevelChildren.push(...node.children);
+
+    roots.forEach(calculateWidth);
+
+    // Calcular el ancho total de todas las raíces
+    let totalRootWidth = 0;
+    for (let i = 0; i < roots.length; i++) {
+      totalRootWidth += roots[i].subtreeWidth;
+      if (i < roots.length - 1) {
+        totalRootWidth += this.nodeSpacing;
       }
-    });
-    
-    // Iniciar el posicionamiento recursivo desde el primer nivel de hijos
-    positionChildren(firstLevelChildren, 1);
+    }
+
+    let startX = -totalRootWidth / 2;
+
+    // ----- Paso 2: asignar posiciones basadas en el ancho calculado -----
+    const setPositions = (node, depth, x) => {
+      node.x = x + (node.subtreeWidth - this.nodeWidth) / 2;
+      node.y = depth * this.levelHeight;
+
+      if (node.children && node.children.length > 0 && !this.collapsedNodes.has(node.id)) {
+        let childX = x;
+        for (let i = 0; i < node.children.length; i++) {
+          const child = node.children[i];
+          setPositions(child, depth + 1, childX);
+          childX += child.subtreeWidth + this.nodeSpacing;
+        }
+      }
+    };
+
+    for (let i = 0; i < roots.length; i++) {
+      const root = roots[i];
+      setPositions(root, 0, startX);
+      startX += root.subtreeWidth + this.nodeSpacing;
+    }
   }
 
   renderNodes(svg) {
