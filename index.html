@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Tree Visualizer - The real Tree</title>
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>XML Tree Visualizer - The real Tree</h1>
+            <p>When I enter in a webpage that says "XML Tree", I thought in a diagram of a tree, but in any webpage they have something like that. so I created this tool to visualize the XML tree.</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-panel">
+                <div class="panel-header">
+                    <h2>XML Input</h2>
+                </div>
+                <textarea 
+                    id="xmlInput" 
+                    class="xml-textarea"
+                    placeholder="Paste your XML code here..."
+                    spellcheck="false"
+                ></textarea>
+                <div class="controls">
+                    <button id="visualizeBtn" class="btn btn-primary">
+                        <span class="btn-icon">🌳</span>
+                        Visualize Tree
+                    </button>
+                    <button id="clearBtn" class="btn btn-secondary">
+                        <span class="btn-icon">🗑️</span>
+                        Clear
+                    </button>
+                    <button id="expandAllBtn" class="btn btn-secondary">
+                        <span class="btn-icon">📂</span>
+                        Expand All
+                    </button>
+                    <button id="collapseAllBtn" class="btn btn-secondary">
+                        <span class="btn-icon">📁</span>
+                        Collapse All
+                    </button>
+                </div>
+            </div>
+            
+            <div class="visualization-panel">
+                <div class="panel-header">
+                    <h2>Tree Visualization</h2>
+                    <div class="zoom-controls">
+                        <button id="zoomInBtn" class="zoom-btn">+</button>
+                        <button id="zoomOutBtn" class="zoom-btn">-</button>
+                        <button id="resetZoomBtn" class="zoom-btn">⌂</button>
+                        <button id="fullscreenBtn" class="zoom-btn">⛶</button>
+                        <button id="downloadBtn" class="zoom-btn" title="Download diagram">💾</button>
+                    </div>
+                </div>
+                <div id="treeContainer" class="tree-container">
+                    <canvas id="treeCanvas" class="tree-canvas"></canvas>
+                    <div id="emptyState" class="empty-state">
+                        <div class="empty-icon">🚀</div>
+                        <p>GPU-accelerated rendering ready</p>
+                        <p>Enter XML code to visualize with hardware acceleration</p>
+                    </div>
+                    <div id="tooltip" class="tooltip"></div>
+                    <div id="statusMessage" class="status-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="src/js/script.js"></script>
+</body>
+</html>
